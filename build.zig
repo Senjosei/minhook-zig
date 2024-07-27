@@ -1,6 +1,6 @@
 const std = @import("std");
 
-pub fn build(b: *std.build.Builder) !void {
+pub fn build(b: *std.Build) !void {
     const minhook = b.dependency("minhook", .{});
 
     const lib = b.addStaticLibrary(.{
@@ -19,11 +19,11 @@ pub fn build(b: *std.build.Builder) !void {
 
     b.installArtifact(lib);
 
-    _ = b.addModule("minhook", .{ .source_file = .{ .path = "minhook.zig" } });
+    _ = b.addModule("minhook", .{ .root_source_file = b.path("minhook.zig") });
 
     const minhook_test = b.addTest(.{
         .name = "minhook-test",
-        .root_source_file = .{ .path = "minhook.zig" },
+        .root_source_file = b.path("minhook.zig"),
     });
 
     minhook_test.linkLibrary(lib);
