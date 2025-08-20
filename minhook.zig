@@ -37,11 +37,11 @@ pub const bindings = struct {
 
     /// Initialize the MinHook library. You must call this function EXACTLY ONCE
     /// at the beginning of your program.
-    pub extern fn MH_Initialize() callconv(std.os.windows.WINAPI) Status;
+    pub extern fn MH_Initialize() callconv(.winapi) Status;
 
     /// Uninitialize the MinHook library. You must call this function EXACTLY
     /// ONCE at the end of your program.
-    pub extern fn MH_Uninitialize() callconv(std.os.windows.WINAPI) Status;
+    pub extern fn MH_Uninitialize() callconv(.winapi) Status;
 
     /// Creates a hook for the specified target function, in disabled state.
     /// Parameters:
@@ -56,7 +56,7 @@ pub const bindings = struct {
         target: *const anyopaque,
         detour: *const anyopaque,
         original: ?**const anyopaque,
-    ) callconv(std.os.windows.WINAPI) Status;
+    ) callconv(.winapi) Status;
 
     /// Creates a hook for the specified API function, in disabled state.
     /// Parameters:
@@ -74,7 +74,7 @@ pub const bindings = struct {
         proc_name: [*:0]const u8,
         detour: *const anyopaque,
         original: ?**const anyopaque,
-    ) callconv(std.os.windows.WINAPI) Status;
+    ) callconv(.winapi) Status;
 
     /// Creates a hook for the specified API function, in disabled state.
     /// Parameters:
@@ -96,43 +96,43 @@ pub const bindings = struct {
         detour: *const anyopaque,
         original: ?**const anyopaque,
         target: ?**const anyopaque,
-    ) callconv(std.os.windows.WINAPI) Status;
+    ) callconv(.winapi) Status;
 
     /// Removes an already created hook.
     /// Parameters:
     ///   pTarget [in] A pointer to the target function.
-    pub extern fn MH_RemoveHook(target: *const anyopaque) callconv(std.os.windows.WINAPI) Status;
+    pub extern fn MH_RemoveHook(target: *const anyopaque) callconv(.winapi) Status;
 
     /// Enables an already created hook.
     /// Parameters:
     ///   pTarget [in] A pointer to the target function.
     ///                If this parameter is MH_ALL_HOOKS, all created hooks are
     ///                enabled in one go.
-    pub extern fn MH_EnableHook(target: ?*const anyopaque) callconv(std.os.windows.WINAPI) Status;
+    pub extern fn MH_EnableHook(target: ?*const anyopaque) callconv(.winapi) Status;
 
     /// Disables an already created hook.
     /// Parameters:
     ///   pTarget [in] A pointer to the target function.
     ///                If this parameter is MH_ALL_HOOKS, all created hooks are
     ///                disabled in one go.
-    pub extern fn MH_DisableHook(target: ?*const anyopaque) callconv(std.os.windows.WINAPI) Status;
+    pub extern fn MH_DisableHook(target: ?*const anyopaque) callconv(.winapi) Status;
 
     /// Queues to enable an already created hook.
     /// Parameters:
     ///   pTarget [in] A pointer to the target function.
     ///                If this parameter is MH_ALL_HOOKS, all created hooks are
     ///                queued to be enabled.
-    pub extern fn MH_QueueEnableHook(target: ?*const anyopaque) callconv(std.os.windows.WINAPI) Status;
+    pub extern fn MH_QueueEnableHook(target: ?*const anyopaque) callconv(.winapi) Status;
 
     /// Queues to disable an already created hook.
     /// Parameters:
     ///   pTarget [in] A pointer to the target function.
     ///                If this parameter is MH_ALL_HOOKS, all created hooks are
     ///                queued to be disabled.
-    pub extern fn MH_QueueDisableHook(target: ?*const anyopaque) callconv(std.os.windows.WINAPI) Status;
+    pub extern fn MH_QueueDisableHook(target: ?*const anyopaque) callconv(.winapi) Status;
 
     /// Applies all queued changes in one go.
-    pub extern fn MH_ApplyQueued() callconv(std.os.windows.WINAPI) Status;
+    pub extern fn MH_ApplyQueued() callconv(.winapi) Status;
 };
 
 pub const InitError = error{
@@ -373,13 +373,13 @@ test {
     defer deinit() catch unreachable;
 
     const funcs = struct {
-        var trampoline: *const fn (i32, i32) callconv(.C) i32 = undefined;
+        var trampoline: *const fn (i32, i32) callconv(.c) i32 = undefined;
 
-        fn add(a: i32, b: i32) callconv(.C) i32 {
+        fn add(a: i32, b: i32) callconv(.c) i32 {
             return a + b;
         }
 
-        fn detouredAdd(a: i32, b: i32) callconv(.C) i32 {
+        fn detouredAdd(a: i32, b: i32) callconv(.c) i32 {
             return trampoline(a, b) * 2;
         }
 
@@ -389,7 +389,7 @@ test {
             lpCaption: std.os.windows.LPCSTR,
             uType: std.os.windows.UINT,
             wLanguageId: std.os.windows.WORD,
-        ) callconv(.C) c_int;
+        ) callconv(.c) c_int;
 
         fn FakeMessageBoxExA(
             hWnd: ?std.os.windows.HWND,
@@ -397,7 +397,7 @@ test {
             lpCaption: std.os.windows.LPCSTR,
             uType: std.os.windows.UINT,
             wLanguageId: std.os.windows.WORD,
-        ) callconv(.C) c_int {
+        ) callconv(.c) c_int {
             _ = wLanguageId;
             _ = uType;
             _ = lpCaption;
@@ -430,13 +430,13 @@ test {
 
 test "queued" {
     const funcs = struct {
-        var trampoline: *const fn (i32, i32) callconv(.C) i32 = undefined;
+        var trampoline: *const fn (i32, i32) callconv(.c) i32 = undefined;
 
-        fn add(a: i32, b: i32) callconv(.C) i32 {
+        fn add(a: i32, b: i32) callconv(.c) i32 {
             return a + b;
         }
 
-        fn detouredAdd(a: i32, b: i32) callconv(.C) i32 {
+        fn detouredAdd(a: i32, b: i32) callconv(.c) i32 {
             return trampoline(a, b) * 2;
         }
     };

@@ -3,10 +3,16 @@ const std = @import("std");
 pub fn build(b: *std.Build) !void {
     const minhook = b.dependency("minhook", .{});
 
-    const lib = b.addStaticLibrary(.{
-        .name = "minhook",
+    const mod = b.addModule("minhook", .{
         .target = b.standardTargetOptions(.{}),
         .optimize = b.standardOptimizeOption(.{}),
+        .root_source_file = b.path("minhook.zig"),
+    });
+
+    const lib = b.addLibrary(.{
+        .name = "minhook",
+        .linkage = .static,
+        .root_module = mod
     });
 
     lib.linkLibC();
@@ -19,14 +25,13 @@ pub fn build(b: *std.Build) !void {
 
     b.installArtifact(lib);
 
-    _ = b.addModule("minhook", .{ .root_source_file = b.path("minhook.zig") });
 
     const minhook_test = b.addTest(.{
         .name = "minhook-test",
-        .root_source_file = b.path("minhook.zig"),
+        .root_module = mod
     });
 
-    minhook_test.linkLibrary(lib);
+    // minhook_test.linkLibrary(lib);
 
     const test_step = b.step("test", "test minhook bindings");
     test_step.dependOn(&b.addRunArtifact(minhook_test).step);

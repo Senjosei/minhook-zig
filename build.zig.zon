@@ -1,5 +1,6 @@
 .{
-    .name = "minhook-zig",
+    .name = .minhook_zig,
+    .fingerprint = 0x8dc5b5e9a703cbb5,
     .version = "0.1.0",
     .paths = .{
         "build.zig",
